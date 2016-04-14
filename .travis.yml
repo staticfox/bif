@@ -1,43 +1,36 @@
 language: cpp
 matrix:
-    include:
-        # - os: linux
-        #   compiler: gcc
-        # - os: linux
-        #   env: DEBUILD=YES
-        #   compiler: gcc
-        - os: osx
-          compiler: clang
+  include:
+  - os: osx
+    compiler: clang
 sudo: required
 dist: trusty
 before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cat /proc/cpuinfo /proc/meminfo; fi
-    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lsb_release -a; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sw_vers; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sysctl -a | grep cpu; fi
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sysctl -a | grep mem; fi
-    #- if [[ "$TRAVIS_REPO_SLUG" == "staticfox/bif" && "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_BRANCH" == "master" ]]; then openssl aes-256-cbc -K $encrypted_da8de0aafbfc_key -iv $encrypted_da8de0aafbfc_iv -in .travis-github.ssh.enc -out ~/kvirc-github-key -d; fi
-    #- export encrypted_da8de0aafbfc_key=no
-    #- pwd
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cat /proc/cpuinfo /proc/meminfo; fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then lsb_release -a; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sw_vers; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sysctl -a | grep cpu; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then sysctl -a | grep mem; fi
 script:
-    - |
-            make || exit 1
-            if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo make install; fi
-            if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make install; fi
-            ls -l
-
+- |
+  make || exit 1
+  if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo make install; fi
+  if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then make install; fi
+  ls -l
 after_success:
-    - |
-          echo hi
-          npm install -g appdmg
-          appdmg dist/appdmg.json KVIrc.dmg
-          ls -l
-          cd dist
-          ls -l
-    - |
-          if [ "$BUILD_LEADER" == "YES" ] && [ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ] && [ "$TRAVIS_REPO_SLUG" == "staticfox/bif" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
-              echo "All builds passed!"
-          else
-              echo "Not leader"
-          fi
-# TODO: build .dmg on osx and upload it
+- |
+  echo hi
+  npm install -g appdmg
+  appdmg dist/appdmg.json KVIrc.dmg
+  curl --ftp-create-dirs -T KVIrc.dmg -u $FTP_USER:$FTP_PASS $FTP_HOST$TRAVIS_JOB_NUMBER-$TRAVIS_COMMIT/KVIrc.dmg
+- |
+  if [ "$BUILD_LEADER" == "YES" ] && [ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ] && [ "$TRAVIS_REPO_SLUG" == "staticfox/bif" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
+      echo "All builds passed!"
+  else
+      echo "Not leader"
+  fi
+env:
+  global:
+  - secure: ostGaj0F9r3HVEgImA8gNG15/eyYG6OWwnZj4juXvPtWac/5cEYHr0MumyFHW23fCc55w0cauasIHLJpgWUrJT4uPbnQDixsg2fYN6D3K0PU0zgjo/ZdkbXRyWf1ngF3B4QyjMOUej7skHM8l4lzMq+U1gjY5FgBEPIL89NzFQPEIHMECfxw46OzFSywjAa5uU9juguvDyMFhzUg61mjocvkilHtn4lIzQYk0+43nx54MIcWtAmZcD8Mwl5iM3YE+q+hXTn6A5LT6KwOPPOkV6CbRF304mzglzv4bRTeeKKCqYl7742NxqvMFVBgg2NjqluzYUjblgEUxE2HQYveHhOsVzur7bkMIe7Aj8ibrkNDRMZNlSGb2kDDgBm7JKihQUk0fEJpNDw0OhgmY5riafzMz1omryysdJnLuBJpuUIgIh6dj17gY8bxkOx8Iz8MOc8KWLuuwxzP/nhX9sZdxH/0Tq4z2zC6BWoTIQCZ+MohUpwfsE7Wj5GzYnwpZ5n1VgvMhVbcex7Wl+eK2fCdfGB8CA78BxuK2W38dkw3iko5pgvtVl6WdMG0aMuFznnBIlGHbm1T30gaJy6Np0BNPg53ujjyqiIPKN2WBmLGR+c2KNZewf1FE2IKGKJdO9NKIVURZxqjhXFwUVI7V7hPxWKGBFKjUpDeJ19krk1u6fw=
+  - secure: HoppaatcjCbNL1MTSYwglaQnOZB8xRDJ+cghIuoN+g0AkNZtp4saKm7Yh7MRejcCDG3UltjFUyJ8chAShAYVFc+BTMRyLAcz9u/8HmHeI3prO4fqQQLWz2j+I5oUvQ7zK6rzSxgMJY1C7Rjaf3hlg9q0lIjBxvDBR/m8NDtLMJQmJAV40saOLA01sDh/dv51CbU7MLwGYKXvHU6HOtvVlWIecsOvSTjQpbMIOLrE7g+XQ+DHRo7w+Wl1I7ltB79zkU+QZXF22neAFFMmQuI5I/4mmEbjF4fKbHOhnckmCL4bD/ITYw1aa6QThEy62zs0KeB2MbwpN4I70czCOkhts/Fn4OJ8UIZO0mVRIj7yDLbrDMOCumMnwdG0RXvVaJoHZ9WjODO4V9Wg+/AHSxMt9GO5QpZCnpBnT++KV0SpD2o6rcpZJdHhHnBh6mQgTfxLjAkrvBKcD3mArADCLJM3OWdQyhE2OqQChjCQ20smhePYalj/+RnogNhD/J2WDDPvo2UQXY1el2G1LHa61UXew+i8+38amWZJex96A+r/E6AvasPpY84jfS2hynHC/J2uU/vklSK3pkEllV9gK/FmPEuoQ+I5AOvQuaQV/4YcWR6fQY7E2mgLpGWNWjZ0dnFEdUNkma04Vv3Vwx93kgjC1Dqd66VaOSm33E3erSqRD/4=
+  - secure: rOjm/MTGFSdXL2S59MD1CIHsG2WuaWF/ti4j+eBWXmsJULCA3V7IaHpgxlaHieHYM+gccpBRVQGMtGuhFPqo1YEajfhqr3cFil1ZYpi6NWhpBbXQxibhwO75B0vvZ7lrtNekubEObSfNIzrR/xVqaAPlUfaqfMozE+Ig2fseBjyZtRdQXsrgPQJ7kmaYShNWohbZMkqQsnfgKilhMv4Rja8OvgWJJFMwyS5JUaZiq4GDTHGiLzZuOmYUOibjhE9dElgCnwEexLWYqUHJ6kFfjeHfVO01q9gTpqE3oW8KGeRqQ7O7kkdcqx2WjSMQjpUdH7zVmYANd0gvaQfwEtFL2ztsWc+xvSoL1f1srQrVzZQMidsHbRO4YB56kaYA8AaXG8ENzXDj3YaPfDzaYT0ln1lyRV7Nm6Rs8ahF7/c0PNmQadPgqR26iTbKKWM6gNC9SO2GH5IKLQQifFc7PIlUuP4Ke0phnOiY0kc3zluna1TNLRvMhqR9OooQDTq1vjsetWfnw/FW8g6KHy81p9te/h5Go333PuwIqXNMJw3wUVwLn4hjdzcKJ44UPccYTfHIvRjR7oiUYTAWe34y6s1LFQ4KNzKw0ZW8d6JQmSX/aKdXRdMzSyZjgEkaa1tjsywPmeaEo9HeMtQtPXbvxA2oUn812cjjo5NjumWPwcDyvMo=

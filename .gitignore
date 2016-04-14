@@ -1,2 +1,3 @@
 *.o
 main
+npm-debug.log
