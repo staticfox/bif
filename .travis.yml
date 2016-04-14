@@ -1,11 +1,11 @@
 language: cpp
 matrix:
     include:
-        - os: linux
-          compiler: gcc
-        - os: linux
-          env: DEBUILD=YES
-          compiler: gcc
+        # - os: linux
+        #   compiler: gcc
+        # - os: linux
+        #   env: DEBUILD=YES
+        #   compiler: gcc
         - os: osx
           compiler: clang
 sudo: required
@@ -30,6 +30,7 @@ after_success:
     - |
           if [ "$BUILD_LEADER" == "YES" ] && [ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ] && [ "$TRAVIS_REPO_SLUG" == "staticfox/bif" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
               echo "All builds passed!"
+              npm install -g appdmg
           else
               echo "Not leader"
           fi
