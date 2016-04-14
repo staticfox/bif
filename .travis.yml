@@ -29,10 +29,14 @@ script:
 after_success:
     - |
           echo hi
+          npm install -g appdmg
+          appdmg dist/appdmg.json KVIrc.dmg
+          ls -l
+          cd dist
+          ls -l
     - |
           if [ "$BUILD_LEADER" == "YES" ] && [ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ] && [ "$TRAVIS_REPO_SLUG" == "staticfox/bif" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
               echo "All builds passed!"
-              npm install -g appdmg
           else
               echo "Not leader"
           fi
