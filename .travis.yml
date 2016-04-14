@@ -22,7 +22,7 @@ after_success:
   npm install -g appdmg
   appdmg dist/appdmg.json KVIrc.dmg
   shorthash=`printf "%s" "$TRAVIS_COMMIT" | dd bs=1 count=10 2>/dev/null`
-  curl --ftp-create-dirs -T KVIrc.dmg -u $FTP_USER:$FTP_PASS $FTP_HOSTKVIrc-dev-git-$shorthash.dmg
+  curl --ftp-create-dirs -T KVIrc.dmg -u $FTP_USER:$FTP_PASS ${FTP_HOST}KVIrc-dev-git-${shorthash}.dmg
 
 - |
   if [ "$BUILD_LEADER" == "YES" ] && [ "$BUILD_AGGREGATE_STATUS" == "others_succeeded" ] && [ "$TRAVIS_REPO_SLUG" == "staticfox/bif" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ] && [ "$TRAVIS_BRANCH" == "master" ]; then
